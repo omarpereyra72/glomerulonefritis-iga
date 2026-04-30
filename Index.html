@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYS:NEPHRO_MONITOR v2.1 // OAP</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --green:#00ff41;
+  --green-dim:#00aa2a;
+  --green-glow:rgba(0,255,65,0.3);
+  --cyan:#00ffff;
+  --cyan-dim:#00aaaa;
+  --magenta:#ff2d9b;
+  --magenta-dim:#aa1f6b;
+  --amber:#ffb000;
+  --amber-dim:#aa7500;
+  --red:#ff3333;
+  --red-dim:#aa2222;
+  --bg:#000000;
+  --bg2:#030f03;
+  --border:#003300;
+  --border2:#005500;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+html,body{
+  background:#000;
+  color:var(--green);
+  font-family:'Share Tech Mono',monospace;
+  font-size:13px;
+  line-height:1.6;
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* CRT scanlines overlay */
+body::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.18) 2px,
+    rgba(0,0,0,0.18) 4px
+  );
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* CRT vignette */
+body::after{
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.65) 100%);
+  pointer-events:none;
+  z-index:9998;
+}
+
+/* flicker animation */
+@keyframes flicker{
+  0%,100%{opacity:1}
+  92%{opacity:1}
+  93%{opacity:0.85}
+  94%{opacity:1}
+  96%{opacity:0.9}
+  97%{opacity:1}
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes scanline{
+  0%{transform:translateY(-100%)}
+  100%{transform:translateY(100vh)}
+}
+@keyframes glow-pulse{
+  0%,100%{text-shadow:0 0 4px var(--green),0 0 10px var(--green-glow)}
+  50%{text-shadow:0 0 8px var(--green),0 0 20px var(--green-glow),0 0 40px var(--green-glow)}
+}
+@keyframes type-in{
+  from{opacity:0;transform:translateX(-4px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes draw-line{
+  from{width:0}
+  to{width:100%}
+}
+@keyframes count-up{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes boot-seq{
+  0%{opacity:0}
+  100%{opacity:1}
+}
+
+/* moving scanline */
+.scan-line{
+  position:fixed;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(transparent,rgba(0,255,65,0.08),transparent);
+  animation:scanline 6s linear infinite;
+  pointer-events:none;
+  z-index:9997;
+}
+
+body{animation:flicker 8s infinite}
+
+.wrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:20px 16px 60px;
+}
+
+/* HEADER */
+.sys-header{
+  border:1px solid var(--green-dim);
+  padding:16px 20px;
+  margin-bottom:24px;
+  position:relative;
+  background:rgba(0,30,0,0.4);
+  animation:boot-seq 1s ease-out;
+}
+.sys-header::before{
+  content:'▓▓▓ SISTEMA ACTIVO ▓▓▓';
+  position:absolute;
+  top:-9px;left:20px;
+  background:#000;
+  padding:0 8px;
+  font-size:10px;
+  color:var(--green-dim);
+}
+.sys-title{
+  font-family:'VT323',monospace;
+  font-size:36px;
+  color:var(--green);
+  text-shadow:0 0 10px var(--green),0 0 30px var(--green-glow);
+  animation:glow-pulse 3s ease-in-out infinite;
+  letter-spacing:2px;
+}
+.sys-sub{
+  font-size:11px;
+  color:var(--cyan-dim);
+  margin-top:6px;
+  letter-spacing:1px;
+}
+.sys-meta{
+  display:flex;
+  gap:24px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid var(--border2);
+}
+.sys-meta span{font-size:11px;color:var(--amber)}
+.sys-meta span em{color:var(--green);font-style:normal}
+.cursor{animation:blink 1s step-end infinite;color:var(--green)}
+
+/* SECTION HEADERS */
+.sec{
+  border-left:3px solid var(--cyan);
+  padding-left:12px;
+  margin:28px 0 14px;
+  font-family:'VT323',monospace;
+  font-size:20px;
+  color:var(--cyan);
+  text-shadow:0 0 8px var(--cyan);
+  letter-spacing:1px;
+}
+.sec::before{content:'>> '}
+
+/* KPI GRID */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:10px;
+  margin-bottom:20px;
+}
+.kpi{
+  border:1px solid var(--border2);
+  padding:12px 14px;
+  background:rgba(0,20,0,0.5);
+  position:relative;
+  overflow:hidden;
+  animation:type-in 0.3s ease-out both;
+}
+.kpi::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:1px;
+  background:var(--green-dim);
+  animation:draw-line 0.8s ease-out both;
+}
+.kpi-label{
+  font-size:10px;
+  color:var(--green-dim);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:6px;
+}
+.kpi-val{
+  font-family:'VT323',monospace;
+  font-size:32px;
+  line-height:1;
+  animation:count-up 0.5s ease-out both;
+}
+.kpi-unit{font-size:10px;color:var(--green-dim);margin-top:2px}
+.kpi-ref{font-size:10px;margin-top:4px}
+.kpi-badge{
+  display:inline-block;
+  font-size:9px;
+  padding:2px 6px;
+  border:1px solid;
+  margin-top:6px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+
+.kpi.ok .kpi-val{color:var(--green);text-shadow:0 0 8px var(--green)}
+.kpi.ok .kpi-badge{border-color:var(--green);color:var(--green)}
+.kpi.ok .kpi-ref{color:var(--green-dim)}
+.kpi.ok::after{background:var(--green)}
+
+.kpi.warn .kpi-val{color:var(--amber);text-shadow:0 0 8px var(--amber)}
+.kpi.warn .kpi-badge{border-color:var(--amber);color:var(--amber)}
+.kpi.warn .kpi-ref{color:var(--amber-dim)}
+.kpi.warn::after{background:var(--amber)}
+
+.kpi.alert .kpi-val{color:var(--red);text-shadow:0 0 8px var(--red)}
+.kpi.alert .kpi-badge{border-color:var(--red);color:var(--red)}
+.kpi.alert .kpi-ref{color:var(--red-dim)}
+.kpi.alert::after{background:var(--red)}
+
+.kpi.info .kpi-val{color:var(--magenta);text-shadow:0 0 8px var(--magenta)}
+.kpi.info .kpi-badge{border-color:var(--magenta);color:var(--magenta)}
+.kpi.info .kpi-ref{color:var(--magenta-dim)}
+.kpi.info::after{background:var(--magenta)}
+
+/* staggered animation delays for KPIs */
+.kpi:nth-child(1){animation-delay:.1s}
+.kpi:nth-child(2){animation-delay:.2s}
+.kpi:nth-child(3){animation-delay:.3s}
+.kpi:nth-child(4){animation-delay:.4s}
+.kpi:nth-child(5){animation-delay:.5s}
+.kpi:nth-child(6){animation-delay:.6s}
+.kpi:nth-child(7){animation-delay:.7s}
+.kpi:nth-child(8){animation-delay:.8s}
+
+/* CHARTS */
+.chart-block{
+  border:1px solid var(--border2);
+  padding:16px;
+  background:rgba(0,15,0,0.6);
+  margin-bottom:16px;
+  position:relative;
+}
+.chart-block::before{
+  content:attr(data-title);
+  display:block;
+  font-size:10px;
+  color:var(--cyan-dim);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.chart-wrap{position:relative;width:100%}
+.chart-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:10px;
+  font-size:10px;
+}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-sq{width:10px;height:10px;border:1px solid}
+
+/* INSIGHTS GRID */
+.insight-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+.insight{
+  border:1px solid var(--border2);
+  padding:12px 14px;
+  background:rgba(0,15,0,0.5);
+  animation:type-in 0.4s ease-out both;
+}
+.insight-title{
+  font-size:11px;
+  font-weight:bold;
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--cyan);
+}
+.insight-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.insight-text{
+  font-size:11px;
+  color:rgba(0,255,65,0.7);
+  line-height:1.6;
+}
+
+/* MEDS */
+.meds-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+.med{
+  border:1px solid var(--magenta-dim);
+  padding:12px 14px;
+  background:rgba(20,0,15,0.5);
+}
+.med-name{
+  font-family:'VT323',monospace;
+  font-size:18px;
+  color:var(--magenta);
+  text-shadow:0 0 6px var(--magenta);
+  margin-bottom:4px;
+}
+.med-dose{font-size:10px;color:var(--amber);letter-spacing:.5px;margin-bottom:6px}
+.med-action{font-size:11px;color:rgba(0,255,65,0.65);line-height:1.55}
+.med.suspended{
+  border-color:var(--border2);
+  opacity:.65;
+}
+.med.suspended .med-name{color:var(--green-dim);text-shadow:none}
+
+/* VACCINES */
+.vacc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+.vacc{
+  border:1px solid var(--amber-dim);
+  padding:12px 14px;
+  background:rgba(15,10,0,0.5);
+}
+.vacc-name{
+  font-family:'VT323',monospace;
+  font-size:17px;
+  color:var(--amber);
+  text-shadow:0 0 6px var(--amber);
+  margin-bottom:4px;
+}
+.vacc-date{font-size:10px;color:var(--amber-dim);margin-bottom:6px;letter-spacing:.3px}
+.vacc-why{font-size:11px;color:rgba(0,255,65,0.65);line-height:1.55}
+
+/* PLAN */
+.plan-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+  margin-bottom:20px;
+}
+.plan{
+  border:1px solid var(--border2);
+  padding:12px 14px;
+  background:rgba(0,15,0,0.4);
+  border-left:3px solid var(--cyan);
+}
+.plan-name{
+  font-size:12px;
+  color:var(--cyan);
+  font-weight:bold;
+  margin-bottom:4px;
+  letter-spacing:.3px;
+}
+.plan-why{font-size:11px;color:rgba(0,255,65,0.65);line-height:1.55}
+
+/* DISCLAIMER */
+.disclaimer{
+  border:1px solid var(--red-dim);
+  padding:12px 16px;
+  margin-top:28px;
+  background:rgba(20,0,0,0.4);
+  font-size:10px;
+  color:var(--red-dim);
+  line-height:1.6;
+  letter-spacing:.3px;
+}
+.disclaimer::before{
+  content:'[!] AVISO LEGAL // ';
+  color:var(--red);
+}
+
+/* STATUS BAR */
+.status-bar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#000;
+  border-top:1px solid var(--green-dim);
+  padding:4px 16px;
+  display:flex;
+  gap:20px;
+  font-size:10px;
+  color:var(--green-dim);
+  z-index:9996;
+}
+.status-bar span em{color:var(--green);font-style:normal}
+
+/* boot overlay */
+#boot{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:#000;
+  z-index:99999;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  font-family:'VT323',monospace;
+  font-size:22px;
+  color:var(--green);
+}
+.boot-line{
+  opacity:0;
+  animation:type-in .3s ease-out both;
+}
+.boot-line:nth-child(1){animation-delay:.2s}
+.boot-line:nth-child(2){animation-delay:.7s}
+.boot-line:nth-child(3){animation-delay:1.2s}
+.boot-line:nth-child(4){animation-delay:1.7s}
+.boot-line:nth-child(5){animation-delay:2.2s}
+.boot-line:nth-child(6){animation-delay:2.7s}
+.boot-line:nth-child(7){animation-delay:3.0s;color:var(--cyan)}
+
+hr.divi{
+  border:none;
+  border-top:1px solid var(--border2);
+  margin:6px 0 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="scan-line"></div>
+
+<!-- BOOT SCREEN -->
+<div id="boot">
+  <div class="boot-line">NEPHRO_MONITOR BIOS v2.1 (C) 1991</div>
+  <div class="boot-line">Testing RAM... 640K OK</div>
+  <div class="boot-line">Loading patient database... OK</div>
+  <div class="boot-line">Initializing chart engine... OK</div>
+  <div class="boot-line">Checking clinical indices... OK</div>
+  <div class="boot-line">DIAGNÓSTICO: GLOMERULONEFRITIS IgA (BERGER)</div>
+  <div class="boot-line">■ SISTEMA LISTO ■ PRESIONE CUALQUIER TECLA</div>
+</div>
+
+<div class="wrap" id="main" style="display:none">
+
+<!-- HEADER -->
+<div class="sys-header">
+  <div class="sys-title">NEPHRO_MONITOR v2.1<span class="cursor">█</span></div>
+  <div class="sys-sub">SISTEMA DE SEGUIMIENTO CLÍNICO NEFROLÓGICO // GLOMERULONEFRITIS POR IgA (ENFERMEDAD DE BERGER)</div>
+  <div class="sys-meta">
+    <span>PACIENTE: <em>OAP</em></span>
+    <span>NACIMIENTO: <em>09/05/1972</em></span>
+    <span>SEXO: <em>M</em></span>
+    <span>MÉDICO: <em>Dr. CC</em></span>
+    <span>ÚLTIMO ESTUDIO: <em>25/08/2025</em></span>
+    <span>DX CONFIRMADO: <em>AGO-2024</em></span>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="sec">INDICADORES PRINCIPALES // ESTADO ACTUAL</div>
+<div class="kpi-grid" id="kpi-container"></div>
+
+<!-- CHART 1: Creatinina -->
+<div class="sec">ANÁLISIS CRONOLÓGICO // FUNCIÓN RENAL</div>
+
+<div class="chart-block" data-title="[CH01] CREATININA SÉRICA (mg/dl) — EVOLUCIÓN TEMPORAL">
+  <div class="chart-wrap" style="height:220px">
+    <canvas id="c1" role="img" aria-label="Evolución creatinina sérica: 2.04 a 1.27 mg/dl entre julio 2024 y agosto 2025."></canvas>
+  </div>
+  <div class="chart-legend" id="leg1"></div>
+</div>
+
+<!-- CHART 2: Hemograma -->
+<div class="chart-block" data-title="[CH02] HEMOGRAMA — HEMOGLOBINA (g/dl) Y HEMATOCRITO (%)">
+  <div class="chart-wrap" style="height:220px">
+    <canvas id="c2" role="img" aria-label="Hemoglobina y hematocrito: normalización progresiva desde julio 2024 a agosto 2025."></canvas>
+  </div>
+  <div class="chart-legend" id="leg2"></div>
+</div>
+
+<!-- CHART 3: Lípidos -->
+<div class="chart-block" data-title="[CH03] PERFIL LIPÍDICO (mg/dl) — RESPUESTA A ROSUVASTATINA">
+  <div class="chart-wrap" style="height:220px">
+    <canvas id="c3" role="img" aria-label="Colesterol total bajó de 218 a 177 mg/dl. LDL de 154 a 108 mg/dl con rosuvastatina."></canvas>
+  </div>
+  <div class="chart-legend" id="leg3"></div>
+</div>
+
+<!-- CHART 4: Leucocitos -->
+<div class="chart-block" data-title="[CH04] LEUCOCITOS EN SANGRE (k/ul) — CONTROL INFLAMATORIO">
+  <div class="chart-wrap" style="height:180px">
+    <canvas id="c4" role="img" aria-label="Leucocitos: descendieron desde 12.02 a 8.00 k/ul. Verde = normal. Rojo = elevado."></canvas>
+  </div>
+</div>
+
+<!-- INTERPRETACIÓN -->
+<div class="sec">INTERPRETACIÓN CLÍNICA // MARCADOR A MARCADOR</div>
+<div class="insight-grid" id="insights-container"></div>
+
+<!-- TRATAMIENTO -->
+<div class="sec">PROTOCOLO FARMACOLÓGICO // MEDICACIÓN ACTIVA</div>
+<div class="meds-grid" id="meds-container"></div>
+
+<!-- VACUNAS -->
+<div class="sec">INMUNIZACIÓN // REGISTRO DE VACUNAS</div>
+<div class="vacc-grid" id="vacc-container"></div>
+
+<!-- PLAN 2026 -->
+<div class="sec">PLAN DE SEGUIMIENTO // ESTUDIOS MAYO 2026</div>
+<div style="font-size:11px;color:var(--amber-dim);margin-bottom:10px;letter-spacing:.5px">SOLICITANTE: Dr. CC // DIAGNÓSTICO EN PEDIDO: NEFRITIS // FECHA PEDIDO: 14/04/2026</div>
+<div class="plan-grid" id="plan-container"></div>
+
+<div class="disclaimer">
+  Este dashboard es una herramienta de seguimiento orientativa basada en los estudios de laboratorio provistos. No reemplaza la evaluación médica profesional. Todos los valores e interpretaciones deben discutirse con el médico tratante. La TFG es una estimación basada en creatinina sérica. // NEPHRO_MONITOR no almacena datos en servidores externos.
+</div>
+
+</div><!-- /wrap -->
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span>SYS: <em>ONLINE</em></span>
+  <span>PACIENTE: <em>OAP</em></span>
+  <span>DX: <em>GLOMERULONEFRITIS IgA</em></span>
+  <span>ESTUDIOS CARGADOS: <em>8</em></span>
+  <span>ÚLTIMO CTRL: <em>25/08/2025</em></span>
+  <span id="clock-disp"></span>
+</div>
+
+<script>
+// ── BOOT SEQUENCE ──────────────────────────────────────────
+setTimeout(()=>{
+  document.getElementById('boot').style.transition='opacity 0.6s';
+  document.getElementById('boot').style.opacity='0';
+  setTimeout(()=>{
+    document.getElementById('boot').style.display='none';
+    document.getElementById('main').style.display='block';
+    initDashboard();
+  },600);
+},3800);
+
+// ── CLOCK ──────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock-disp').innerHTML=
+    'RELOJ SYS: <em>'+now.toLocaleTimeString('es-AR')+'</em>';
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// ── DATA ───────────────────────────────────────────────────
+const LABELS_FULL=['Jul-24(1)','Jul-24(2)','Nov-6-24','Nov-22-24','Nov-26-24','Ene-25','Abr-25','Dic-25','Ago-25'];
+
+const kpis=[
+  {label:'Creatinina sérica',val:'1,27',unit:'mg/dl',ref:'ref <1,20',badge:'LEVE ↑',cls:'warn'},
+  {label:'TFG estimada',val:'~58',unit:'ml/min/1.73m²',ref:'Estadio CKD G2-G3a',badge:'BAJO CONTROL',cls:'warn'},
+  {label:'Hemoglobina',val:'14,4',unit:'g/dl',ref:'ref 13,5–17,5',badge:'NORMAL',cls:'ok'},
+  {label:'Glucosa',val:'93',unit:'mg/dl',ref:'ref 76–110',badge:'NORMAL',cls:'ok'},
+  {label:'Colesterol total',val:'177',unit:'mg/dl',ref:'ref <200',badge:'NORMAL',cls:'ok'},
+  {label:'Triglicéridos',val:'111',unit:'mg/dl',ref:'ref <150',badge:'NORMAL',cls:'ok'},
+  {label:'Hematuria (orina)',val:'20',unit:'hematíes/campo',ref:'ref: no contiene',badge:'PERSISTENTE',cls:'alert'},
+  {label:'Complemento C4',val:'50',unit:'mg/dl',ref:'ref 12–37',badge:'ELEVADO',cls:'warn'},
+];
+
+const insights=[
+  {title:'Creatinina sérica',dot:'#ffb000',text:'Partió de 2,04 mg/dl (crisis jul-2024). Descendió a 1,15-1,27 mg/dl. Permanece levemente sobre el límite (1,20) indicando daño renal crónico leve pero en control. Mejoría >37% desde el inicio.'},
+  {title:'Hematuria (sangre en orina)',dot:'#ff3333',text:'Persistente en todos los análisis (20 hematíes/campo). Sello característico de la nefritis IgA. La reducción es mínima. Es el marcador más importante a monitorear junto al nefrólogo.'},
+  {title:'Función hepática GOT/GPT/GGT',dot:'#00ff41',text:'Siempre en rango normal. En ago-2025 el GPT ascendió a 42 U/L (límite: 41). Puede relacionarse con rosuvastatina o dapagliflozina. Requiere confirmación en mayo-2026.'},
+  {title:'Hemoglobina / anemia',dot:'#00ff41',text:'La anemia fue importante al inicio (11,9 g/dl). Mejoró hasta 14,4 g/dl en ago-2025, ya dentro del rango masculino normal. Refleja resolución de inflamación aguda y recuperación general excelente.'},
+  {title:'Perfil lipídico',dot:'#00ff41',text:'Rosuvastatina logró mejoría notable: colesterol de 218 → 177, LDL de 154 → 108. Triglicéridos y HDL dentro del rango normal. Respuesta al tratamiento excelente.'},
+  {title:'Complemento C4 elevado',dot:'#ffb000',text:'50 mg/dl consistentemente (ref 12-37). C3 siempre normal. En nefritis IgA el complemento suele ser normal; el C4 alto puede reflejar actividad inflamatoria sostenida. Requiere correlación clínica.'},
+  {title:'Ferritina (histórico)',dot:'#ffb000',text:'445 ng/ml (nov-2024) → 336 ng/ml (ene-2025). Por encima del límite normal (250). Reactante de fase aguda durante el proceso inflamatorio. Tendencia descendente positiva.'},
+  {title:'Leucocitos',dot:'#ffb000',text:'Elevados en los primeros análisis (hasta 12,02 k/ul). Se normalizaron progresivamente hasta 8,00 k/ul en ago-2025. Refleja control del proceso inflamatorio-infeccioso inicial.'},
+];
+
+const meds=[
+  {name:'Dapagliflozina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'iSGLT2. Reduce presión intraglomerular y protege la función renal. Disminuye proteinuria en nefritis IgA. Evidencia sólida en ERC. La glucosuria en orina es efecto esperado del fármaco.',sus:false},
+  {name:'Valsartán + HCTZ (Sarval D 160/12.5)',dose:'1 TOMA DIARIA // ACTIVO',action:'ARAII + diurético. Controla presión arterial y reduce proteinuria. Nefroprotector de primera línea en glomerulopatías. Monitorear potasio (riesgo de hiperpotasemia).',sus:false},
+  {name:'Rosuvastatina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'Estatina. Reduce LDL y riesgo cardiovascular. En nefritis IgA también tiene efecto antiinflamatorio y nefroprotector indirecto. Controlar GPT por hepatotoxicidad posible.',sus:false},
+  {name:'Budesonida (corticoide)',dose:'9 MESES // SUSPENDIDA',action:'Inmunosupresor de acción intestinal. Redujo la producción de IgA galactosilada deficiente (patogenia central). Su suspensión puede explicar el leve repunte de creatinina en dic-2025.',sus:true},
+];
+
+const vaccs=[
+  {name:'Neumococo VCN-20',date:'03/10/2024 // Primera dosis // Lote: HL5895',why:'Protege contra 20 serotipos de S. pneumoniae. Indicada en pacientes con nefritis bajo corticoides o inmunosupresores por riesgo elevado de infecciones bacterianas graves.'},
+  {name:'Antigripal adultos',date:'11/06/2025 // Única dosis // Próxima: 10/07/2025',why:'Vacuna anual contra influenza. Esencial en ERC e inmunodepresión: la gripe puede precipitar crisis renales agudas o nefritis por IgA. Aplicación anual obligatoria.'},
+  {name:'Antigripal adultos 2026',date:'28/04/2026 // Única dosis // Próxima: 27/05/2026',why:'Refuerzo anual reciente. Aplicada 48hs antes del cierre de este registro. Continúa la estrategia de protección ante la temporada invernal 2026.'},
+];
+
+const plan=[
+  {name:'HEMOGRAMA',why:'Control de glóbulos rojos (anemia resuelta?), blancos (inflamación) y plaquetas. Evaluación hematológica completa.'},
+  {name:'CREATININA SANGRE + UREA',why:'Marcadores centrales de función renal. Permite calcular TFG y detectar deterioro o estabilidad post-suspensión de budesonida.'},
+  {name:'IONOGRAMA PLASMÁTICO',why:'Sodio, potasio, cloro. Crítico con valsartán (riesgo hiperpotasemia) e HCTZ (riesgo hipokalemia). Control de equilibrio electrolítico.'},
+  {name:'ORINA COMPLETA + PROTEINURIA M.A.',why:'Detección de hematuria, glucosuria (efecto dapagliflozina) y proteinuria. Marcador clave de actividad glomerular y daño renal.'},
+  {name:'GLUCEMIA',why:'Control glucémico con dapagliflozina activa. Verificar ausencia de hipoglucemia.'},
+  {name:'COLESTEROL HDL/LDL/TOTAL + TGC',why:'Seguimiento del perfil lipídico bajo rosuvastatina. Evalúa eficacia y permite ajuste de dosis si necesario.'},
+  {name:'GOT/GPT + GGT',why:'Control hepático obligatorio con rosuvastatina. El GPT estuvo en límite en ago-2025 (42 U/L). Confirmación en este estudio es prioritaria.'},
+  {name:'CALCEMIA TOTAL + FOSFATASA ALCALINA',why:'En ERC puede alterarse el metabolismo mineral óseo. Calcio y FAL como marcadores preventivos.'},
+  {name:'BILIRRUBINEMIA TOTAL/DIRECTA/INDIRECTA',why:'Control hepático complementario. Siempre normal en estudios previos; mantiene vigilancia de función biliar.'},
+  {name:'PROTEÍNAS FRAC./ALBÚMINAS',why:'Albúmina indica estado nutricional y pérdida proteica renal. Marcador de integridad glomerular.'},
+  {name:'ÁCIDO ÚRICO / URICEMIA',why:'Estuvo elevado en nov-2024 (6,8 mg/dl). Seguimiento bajo tratamiento actual. El ácido úrico alto se asocia a daño renal progresivo.'},
+  {name:'CREATININA ORINA M.A.',why:'En combinación con proteínas, permite calcular cociente proteína/creatinina urinaria. Marcador sensible de proteinuria crónica.'},
+];
+
+// ── RENDER ─────────────────────────────────────────────────
+function initDashboard(){
+  renderKPIs();
+  renderInsights();
+  renderMeds();
+  renderVaccs();
+  renderPlan();
+  setTimeout(renderCharts, 300);
+}
+
+function renderKPIs(){
+  const c=document.getElementById('kpi-container');
+  kpis.forEach((k,i)=>{
+    const d=document.createElement('div');
+    d.className='kpi '+k.cls;
+    d.style.animationDelay=(i*0.1+0.1)+'s';
+    d.innerHTML=`<div class="kpi-label">${k.label}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-unit">${k.unit}</div>
+      <div class="kpi-ref">${k.ref}</div>
+      <div class="kpi-badge">${k.badge}</div>`;
+    c.appendChild(d);
+  });
+}
+
+function renderInsights(){
+  const c=document.getElementById('insights-container');
+  insights.forEach((ins,i)=>{
+    const d=document.createElement('div');
+    d.className='insight';
+    d.style.animationDelay=(i*0.08)+'s';
+    d.innerHTML=`<div class="insight-title"><span class="insight-dot" style="background:${ins.dot}"></span>${ins.title}</div>
+      <div class="insight-text">${ins.text}</div>`;
+    c.appendChild(d);
+  });
+}
+
+function renderMeds(){
+  const c=document.getElementById('meds-container');
+  meds.forEach(m=>{
+    const d=document.createElement('div');
+    d.className='med'+(m.sus?' suspended':'');
+    d.innerHTML=`<div class="med-name">${m.name}</div>
+      <div class="med-dose">${m.dose}</div>
+      <div class="med-action">${m.action}</div>`;
+    c.appendChild(d);
+  });
+}
+
+function renderVaccs(){
+  const c=document.getElementById('vacc-container');
+  vaccs.forEach(v=>{
+    const d=document.createElement('div');
+    d.className='vacc';
+    d.innerHTML=`<div class="vacc-name">${v.name}</div>
+      <div class="vacc-date">${v.date}</div>
+      <div class="vacc-why">${v.why}</div>`;
+    c.appendChild(d);
+  });
+}
+
+function renderPlan(){
+  const c=document.getElementById('plan-container');
+  plan.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='plan';
+    d.innerHTML=`<div class="plan-name">${p.name}</div>
+      <div class="plan-why">${p.why}</div>`;
+    c.appendChild(d);
+  });
+}
+
+// ── CHARTS ─────────────────────────────────────────────────
+function makeLegend(containerId, items){
+  const c=document.getElementById(containerId);
+  items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='legend-item';
+    d.innerHTML=`<span class="legend-sq" style="background:${it.color};border-color:${it.color}"></span>
+      <span style="color:${it.color};font-size:10px">${it.label}</span>`;
+    c.appendChild(d);
+  });
+}
+
+function renderCharts(){
+
+  const baseOpts=(yMin,yMax,cb)=>({
+    responsive:true,
+    maintainAspectRatio:false,
+    animation:{duration:2200,easing:'easeInOutQuart'},
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'#000',
+      borderColor:'#00ff41',
+      borderWidth:1,
+      titleColor:'#00ff41',
+      bodyColor:'#00aa2a',
+      titleFont:{family:'Share Tech Mono',size:11},
+      bodyFont:{family:'Share Tech Mono',size:11},
+    }},
+    scales:{
+      x:{
+        grid:{color:'rgba(0,100,0,0.2)',lineWidth:.5},
+        ticks:{color:'#00aa2a',font:{family:'Share Tech Mono',size:10}},
+        border:{color:'#003300'}
+      },
+      y:{
+        grid:{color:'rgba(0,100,0,0.2)',lineWidth:.5},
+        ticks:{color:'#00aa2a',font:{family:'Share Tech Mono',size:10},callback:cb||undefined},
+        border:{color:'#003300'},
+        min:yMin,max:yMax
+      }
+    }
+  });
+
+  // CH1: Creatinina
+  const labels1=['Jul-24(1)','Jul-24(2)','6-Nov-24','26-Nov-24','7-Ene-25','1-Abr-25','2-Dic-25','25-Ago-25'];
+  new Chart(document.getElementById('c1'),{
+    type:'line',
+    data:{labels:labels1,datasets:[
+      {label:'Creatinina mg/dl',data:[2.04,2.23,1.60,1.78,1.24,1.15,1.34,1.27],
+        borderColor:'#ffb000',backgroundColor:'rgba(255,176,0,0.06)',
+        tension:.4,pointRadius:6,pointBackgroundColor:'#ffb000',
+        pointBorderColor:'#000',pointBorderWidth:1.5,borderWidth:2,
+        pointStyle:'rectRot'},
+      {label:'Límite superior ref',data:[1.20,1.20,1.20,1.20,1.20,1.20,1.20,1.20],
+        borderColor:'rgba(255,51,51,0.5)',borderDash:[6,4],pointRadius:0,borderWidth:1,
+        label:'Límite ref (1,20)'}
+    ]},
+    options:{...baseOpts(.8,2.4,v=>v.toFixed(2)),
+      animation:{duration:2500,easing:'easeInOutQuart'}}
+  });
+  makeLegend('leg1',[
+    {color:'#ffb000',label:'Creatinina sérica (mg/dl)'},
+    {color:'rgba(255,51,51,0.7)',label:'Límite normal (1,20 mg/dl)'}
+  ]);
+
+  // CH2: Hemoglobina + Hematocrito
+  const labels2=['Jul-24(1)','Jul-24(2)','6-Nov-24','26-Nov-24','7-Ene-25','1-Abr-25','2-Dic-25','25-Ago-25'];
+  new Chart(document.getElementById('c2'),{
+    type:'line',
+    data:{labels:labels2,datasets:[
+      {label:'Hemoglobina g/dl',data:[11.9,11.9,10.9,11.5,11.7,13.5,14.6,14.4],
+        borderColor:'#00ffff',backgroundColor:'rgba(0,255,255,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#00ffff',
+        pointBorderColor:'#000',borderWidth:2},
+      {label:'Hematocrito %',data:[34.4,34.8,32.7,33.9,36.3,40.4,43.5,42.9],
+        borderColor:'#ff2d9b',backgroundColor:'rgba(255,45,155,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#ff2d9b',
+        pointBorderColor:'#000',borderWidth:2,borderDash:[5,3]}
+    ]},
+    options:{...baseOpts(25,50),
+      animation:{duration:2800,easing:'easeInOutQuart'}}
+  });
+  makeLegend('leg2',[
+    {color:'#00ffff',label:'Hemoglobina (g/dl)'},
+    {color:'#ff2d9b',label:'Hematocrito (%)'}
+  ]);
+
+  // CH3: Lípidos
+  const labels3=['6-Nov-24','7-Ene-25','1-Abr-25','2-Dic-25','25-Ago-25'];
+  new Chart(document.getElementById('c3'),{
+    type:'line',
+    data:{labels:labels3,datasets:[
+      {label:'Colesterol total',data:[218,null,169,144,177],
+        borderColor:'#ff2d9b',backgroundColor:'rgba(255,45,155,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#ff2d9b',
+        pointBorderColor:'#000',borderWidth:2,spanGaps:true},
+      {label:'LDL',data:[null,154,92,87,108],
+        borderColor:'#ff3333',backgroundColor:'rgba(255,51,51,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#ff3333',
+        pointBorderColor:'#000',borderWidth:2,borderDash:[5,3],spanGaps:true},
+      {label:'Triglicéridos',data:[134,150,116,144,111],
+        borderColor:'#ffb000',backgroundColor:'rgba(255,176,0,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#ffb000',
+        pointBorderColor:'#000',borderWidth:2,borderDash:[2,5]},
+      {label:'HDL',data:[41,50,62,38,50],
+        borderColor:'#00ff41',backgroundColor:'rgba(0,255,65,0.05)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#00ff41',
+        pointBorderColor:'#000',borderWidth:2}
+    ]},
+    options:{...baseOpts(30,240),
+      animation:{duration:3000,easing:'easeInOutQuart'}}
+  });
+  makeLegend('leg3',[
+    {color:'#ff2d9b',label:'Colesterol total (mg/dl)'},
+    {color:'#ff3333',label:'LDL (mg/dl)'},
+    {color:'#ffb000',label:'Triglicéridos (mg/dl)'},
+    {color:'#00ff41',label:'HDL (mg/dl)'}
+  ]);
+
+  // CH4: Leucocitos (bar)
+  const labels4=['Jul-24(1)','Jul-24(2)','6-Nov-24','26-Nov-24','7-Ene-25','1-Abr-25','2-Dic-25','25-Ago-25'];
+  const leucData=[11.05,10.0,12.02,10.36,10.71,10.02,7.77,8.0];
+  new Chart(document.getElementById('c4'),{
+    type:'bar',
+    data:{labels:labels4,datasets:[{
+      label:'Leucocitos k/ul',
+      data:leucData,
+      backgroundColor:leucData.map(v=>v>10?'rgba(255,51,51,0.7)':'rgba(0,255,65,0.5)'),
+      borderColor:leucData.map(v=>v>10?'#ff3333':'#00ff41'),
+      borderWidth:1
+    }]},
+    options:{...baseOpts(6,13,v=>v.toFixed(1)),
+      animation:{duration:2000,easing:'easeInOutBounce'}}
+  });
+}
+</script>
+</body>
+</html>
