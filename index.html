@@ -105,6 +105,45 @@ body{animation:flicker 8s infinite}
 .td-new{color:var(--cyan)!important}
 .disclaimer{border:1px solid var(--red-dim);padding:12px 16px;margin-top:28px;background:rgba(20,0,0,0.4);font-size:10px;color:var(--red-dim);line-height:1.6;letter-spacing:.3px}
 .disclaimer::before{content:'[!] AVISO LEGAL // ';color:var(--red)}
+
+/* PRINT BUTTON */
+#btn-print{
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  background:transparent;
+  color:var(--cyan);
+  border:1px solid var(--cyan);
+  padding:8px 18px;
+  cursor:pointer;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+  position:relative;
+  overflow:hidden;
+  transition:all .2s;
+}
+#btn-print:hover{background:rgba(0,255,255,0.08);box-shadow:0 0 12px rgba(0,255,255,0.3);color:#fff}
+#btn-print:active{transform:scale(.97)}
+#btn-print .btn-icon{font-size:14px;animation:blink 2s step-end infinite}
+#btn-print::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:0;height:1px;background:var(--cyan);
+  transition:width .3s ease;
+}
+#btn-print:hover::after{width:100%}
+
+/* ── PRINT STYLES ───────────────────────────────── */
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#000!important;font-family:'Courier New',monospace;font-size:11pt;animation:none!important}
+  body::before,body::after,.scan-line,#boot,.status-bar,#btn-print,
+  .sys-header,.sec,.kpi-grid,.chart-block,.meds-grid,.vacc-grid,.plan-grid,
+  .delta-table,.disclaimer,button{display:none!important}
+  #main{display:block!important}
+  .wrap{max-width:100%!important;padding:0!important}
+  #print-report{display:block!important}
+  .insight-grid{display:none!important}
+}
 .status-bar{position:fixed;bottom:0;left:0;right:0;background:#000;border-top:1px solid var(--green-dim);padding:4px 16px;display:flex;gap:20px;font-size:10px;color:var(--green-dim);z-index:9996;flex-wrap:wrap}
 .status-bar span em{color:var(--green);font-style:normal}
 #boot{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:99999;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-family:'VT323',monospace;font-size:22px;color:var(--green)}
@@ -191,9 +230,18 @@ body{animation:flicker 8s infinite}
 
 <!-- INTERPRETACIÓN -->
 <div class="sec">INTERPRETACIÓN CLÍNICA // ANÁLISIS MAY-2026 <span class="new-tag">ACTUALIZADO</span></div>
+
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+  <button id="btn-print" onclick="printReport()" title="Imprimir reporte de interpretación clínica">
+    <span class="btn-icon">▣</span> IMPRIMIR REPORTE CLÍNICO
+  </button>
+  <span style="font-size:10px;color:var(--green-dim);letter-spacing:.5px">Genera un reporte imprimible con todos los indicadores del análisis MAY-2026</span>
+</div>
+
 <div class="insight-grid" id="insights-container"></div>
 
-<!-- TRATAMIENTO -->
+<!-- PRINT REPORT — hidden on screen, visible on print / popup -->
+<div id="print-report" style="display:none"></div>
 <div class="sec">PROTOCOLO FARMACOLÓGICO // MEDICACIÓN ACTIVA</div>
 <div class="meds-grid" id="meds-container"></div>
 
@@ -366,7 +414,103 @@ function renderVaccs(){
   });
 }
 
-// ── CHARTS ───────────────────────────────────────────────────
+// ── PRINT REPORT ─────────────────────────────────────────────
+function printReport(){
+  // KPI table rows
+  const kpiRows = kpis.map(k=>{
+    const statColor = k.cls==='ok'?'#0a5c2e': k.cls==='warn'?'#7a4800':'#8b0000';
+    const statBg   = k.cls==='ok'?'#e6f9ee': k.cls==='warn'?'#fff8e6':'#fdecea';
+    return `<tr>
+      <td style="padding:6px 10px;border:1px solid #ccc;font-weight:bold">${k.label}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;font-size:14pt;font-weight:bold;color:${statColor}">${k.val}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;color:#555">${k.unit}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;color:#555">${k.ref}</td>
+      <td style="padding:6px 10px;border:1px solid #ccc;background:${statBg};color:${statColor};font-weight:bold;font-size:9pt">${k.badge}</td>
+    </tr>`;
+  }).join('');
+
+  // Delta table rows
+  const deltaRows = deltas.map(r=>{
+    const c = r.cls==='td-ok'?'#0a5c2e': r.cls==='td-warn'?'#7a4800': r.cls==='td-alert'?'#8b0000':'#004080';
+    return `<tr>
+      <td style="padding:5px 10px;border:1px solid #ccc;font-weight:bold">${r.name}</td>
+      <td style="padding:5px 10px;border:1px solid #ccc;color:#555">${r.prev}</td>
+      <td style="padding:5px 10px;border:1px solid #ccc;font-weight:bold;color:${c}">${r.curr}</td>
+      <td style="padding:5px 10px;border:1px solid #ccc;font-weight:bold;color:${c}">${r.delta}</td>
+      <td style="padding:5px 10px;border:1px solid #ccc;color:${c}">${r.estado}</td>
+    </tr>`;
+  }).join('');
+
+  // Insight cards
+  const insightCards = insights.map(ins=>{
+    const dotColor = ins.dot==='#00ff41'?'#0a5c2e': ins.dot==='#ffb000'?'#7a4800':'#8b0000';
+    return `<div style="border:1px solid #ccc;border-left:4px solid ${dotColor};padding:10px 14px;margin-bottom:10px;break-inside:avoid">
+      <div style="font-weight:bold;font-size:10pt;color:${dotColor};margin-bottom:5px">● ${ins.title}</div>
+      <div style="font-size:9.5pt;color:#333;line-height:1.6">${ins.text}</div>
+    </div>`;
+  }).join('');
+
+  const now = new Date().toLocaleString('es-AR');
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reporte Clínico OAP — May-2026</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Courier New',Courier,monospace;font-size:10pt;color:#111;background:#fff;padding:24px}
+  h1{font-size:16pt;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:4px}
+  h2{font-size:12pt;border-left:4px solid #333;padding-left:10px;margin:20px 0 10px;background:#f5f5f5;padding:6px 10px}
+  .meta{font-size:9pt;color:#555;margin-bottom:18px;line-height:1.8}
+  table{width:100%;border-collapse:collapse;margin-bottom:6px;font-size:9.5pt}
+  th{background:#222;color:#fff;padding:6px 10px;text-align:left;font-size:9pt;letter-spacing:.5px}
+  tr:nth-child(even) td{background:#f9f9f9}
+  .footer{margin-top:28px;font-size:8pt;color:#888;border-top:1px solid #ccc;padding-top:8px;line-height:1.6}
+  .badge-ok{background:#e6f9ee;color:#0a5c2e;padding:2px 6px;border:1px solid #0a5c2e;font-weight:bold}
+  .badge-warn{background:#fff8e6;color:#7a4800;padding:2px 6px;border:1px solid #7a4800;font-weight:bold}
+  .badge-alert{background:#fdecea;color:#8b0000;padding:2px 6px;border:1px solid #8b0000;font-weight:bold}
+  @media print{body{padding:10px}h1{font-size:14pt}@page{margin:1.5cm}}
+</style>
+</head>
+<body>
+<h1>REPORTE DE INTERPRETACIÓN CLÍNICA</h1>
+<div class="meta">
+  <strong>Paciente:</strong> OAP &nbsp;|&nbsp; <strong>Médico:</strong> Dr. CC &nbsp;|&nbsp;
+  <strong>Diagnóstico:</strong> Glomerulonefritis por IgA (Enfermedad de Berger)<br>
+  <strong>Fecha del análisis:</strong> 20/05/2026 &nbsp;|&nbsp;
+  <strong>Generado:</strong> ${now} &nbsp;|&nbsp;
+  <strong>Sistema:</strong> NEPHRO_MONITOR v2.2
+</div>
+
+<h2>1. INDICADORES PRINCIPALES — ESTADO AL 20/05/2026</h2>
+<table>
+  <thead><tr><th>MARCADOR</th><th>VALOR</th><th>UNIDAD</th><th>REFERENCIA</th><th>ESTADO</th></tr></thead>
+  <tbody>${kpiRows}</tbody>
+</table>
+
+<h2>2. COMPARATIVO AGO-2025 vs MAY-2026</h2>
+<table>
+  <thead><tr><th>MARCADOR</th><th>AGO-2025</th><th>MAY-2026</th><th>VARIACIÓN</th><th>INTERPRETACIÓN</th></tr></thead>
+  <tbody>${deltaRows}</tbody>
+</table>
+
+<h2>3. INTERPRETACIÓN CLÍNICA POR MARCADOR</h2>
+${insightCards}
+
+<div class="footer">
+  ⚠ Este reporte es una herramienta de seguimiento orientativa. No reemplaza la evaluación médica profesional.
+  Todos los valores e interpretaciones deben discutirse con el médico tratante. // NEPHRO_MONITOR v2.2
+</div>
+</body>
+</html>`;
+
+  const w = window.open('','_blank','width=900,height=750,scrollbars=yes');
+  w.document.write(html);
+  w.document.close();
+  // slight delay so fonts load before print dialog
+  setTimeout(()=>w.print(), 600);
+}
+
 function makeLegend(id,items){
   const c=document.getElementById(id);
   items.forEach(it=>{
