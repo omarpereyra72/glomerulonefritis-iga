@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SYS:NEPHRO_MONITOR v2.2 // OAP</title>
+<title>SYS:NEPHRO_MONITOR v2.3 // OAP</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -155,32 +155,32 @@ body{animation:flicker 8s infinite}
 <div class="scan-line"></div>
 
 <div id="boot">
-  <div class="boot-line">NEPHRO_MONITOR BIOS v2.2 (C) 1991</div>
+  <div class="boot-line">NEPHRO_MONITOR BIOS v2.3 (C) 1991</div>
   <div class="boot-line">Testing RAM... 640K OK</div>
   <div class="boot-line">Loading patient database... OK</div>
-  <div class="boot-line">New record detected: 20/05/2026... MERGING</div>
+  <div class="boot-line">New record detected: 12/11/2026... MERGING</div>
   <div class="boot-line">Recalculating trend vectors... OK</div>
   <div class="boot-line">DIAGNÓSTICO: GLOMERULONEFRITIS IgA (BERGER)</div>
-  <div class="boot-line">■ SISTEMA ACTUALIZADO // DATABASE v2.2 ■</div>
+  <div class="boot-line">■ SISTEMA ACTUALIZADO // DATABASE v2.3 ■</div>
 </div>
 
 <div class="wrap" id="main" style="display:none">
 
 <div class="sys-header">
-  <div class="sys-title">NEPHRO_MONITOR v2.2<span class="cursor">█</span></div>
+  <div class="sys-title">NEPHRO_MONITOR v2.3<span class="cursor">█</span></div>
   <div class="sys-sub">SISTEMA DE SEGUIMIENTO CLÍNICO NEFROLÓGICO // GLOMERULONEFRITIS POR IgA (ENFERMEDAD DE BERGER)</div>
   <div class="sys-meta">
     <span>PACIENTE: <em>OAP</em></span>
     <span>NACIMIENTO: <em>09/05/1972</em></span>
     <span>SEXO: <em>M</em></span>
     <span>MÉDICO: <em>Dr. CC</em></span>
-    <span>ÚLTIMO ESTUDIO: <em>20/05/2026</em> <span class="new-tag">NUEVO</span></span>
+    <span>ÚLTIMO ESTUDIO: <em>12/11/2026</em> <span class="new-tag">NUEVO</span></span>
     <span>DX CONFIRMADO: <em>AGO-2024</em></span>
   </div>
 </div>
 
 <!-- KPIs -->
-<div class="sec">INDICADORES PRINCIPALES // ESTADO ACTUAL (20/05/2026)</div>
+<div class="sec">INDICADORES PRINCIPALES // ESTADO ACTUAL (12/11/2026)</div>
 <div class="kpi-grid" id="kpi-container"></div>
 
 <!-- DELTA TABLE -->
@@ -189,8 +189,8 @@ body{animation:flicker 8s infinite}
   <thead>
     <tr>
       <th>MARCADOR</th>
-      <th>AGO-2025</th>
-      <th>MAY-2026 ▶</th>
+      <th>MAY-2026</th>
+      <th>NOV-2026 ▶</th>
       <th>VARIACIÓN</th>
       <th>ESTADO</th>
     </tr>
@@ -200,7 +200,7 @@ body{animation:flicker 8s infinite}
 
 <!-- CHART 1: Creatinina -->
 <div class="sec">ANÁLISIS CRONOLÓGICO // FUNCIÓN RENAL</div>
-<div class="chart-block" data-title="[CH01] CREATININA SÉRICA (mg/dl) — SERIE COMPLETA JUL-2024 → MAY-2026">
+<div class="chart-block" data-title="[CH01] CREATININA SÉRICA (mg/dl) — SERIE COMPLETA JUL-2024 → NOV-2026">
   <div class="chart-wrap" style="height:230px"><canvas id="c1"></canvas></div>
   <div class="chart-legend" id="leg1"></div>
 </div>
@@ -229,13 +229,13 @@ body{animation:flicker 8s infinite}
 </div>
 
 <!-- INTERPRETACIÓN -->
-<div class="sec">INTERPRETACIÓN CLÍNICA // ANÁLISIS MAY-2026 <span class="new-tag">ACTUALIZADO</span></div>
+<div class="sec">INTERPRETACIÓN CLÍNICA // ANÁLISIS NOV-2026 <span class="new-tag">ACTUALIZADO</span></div>
 
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
   <button id="btn-print" onclick="printReport()" title="Imprimir reporte de interpretación clínica">
     <span class="btn-icon">▣</span> IMPRIMIR REPORTE CLÍNICO
   </button>
-  <span style="font-size:10px;color:var(--green-dim);letter-spacing:.5px">Genera un reporte imprimible con todos los indicadores del análisis MAY-2026</span>
+  <span style="font-size:10px;color:var(--green-dim);letter-spacing:.5px">Genera un reporte imprimible con todos los indicadores del análisis NOV-2026</span>
 </div>
 
 <div class="insight-grid" id="insights-container"></div>
@@ -250,7 +250,7 @@ body{animation:flicker 8s infinite}
 <div class="vacc-grid" id="vacc-container"></div>
 
 <div class="disclaimer">
-  Este dashboard es una herramienta de seguimiento orientativa basada en los estudios de laboratorio provistos. No reemplaza la evaluación médica profesional. Todos los valores e interpretaciones deben discutirse con el médico tratante. La TFG es una estimación basada en creatinina sérica. // NEPHRO_MONITOR no almacena datos en servidores externos. // v2.2 — Datos actualizados al 20/05/2026.
+  Este dashboard es una herramienta de seguimiento orientativa basada en los estudios de laboratorio provistos. No reemplaza la evaluación médica profesional. Todos los valores e interpretaciones deben discutirse con el médico tratante. La TFG es una estimación basada en creatinina sérica. // NEPHRO_MONITOR no almacena datos en servidores externos. // v2.3 — Datos actualizados al 12/11/2026.
 </div>
 </div>
 
@@ -258,8 +258,8 @@ body{animation:flicker 8s infinite}
   <span>SYS: <em>ONLINE</em></span>
   <span>PACIENTE: <em>OAP</em></span>
   <span>DX: <em>GLOMERULONEFRITIS IgA</em></span>
-  <span>ESTUDIOS CARGADOS: <em>9</em></span>
-  <span>ÚLTIMO CTRL: <em>20/05/2026</em></span>
+  <span>ESTUDIOS CARGADOS: <em>10</em></span>
+  <span>ÚLTIMO CTRL: <em>12/11/2026</em></span>
   <span id="clock-disp"></span>
 </div>
 
@@ -276,68 +276,69 @@ setInterval(updateClock,1000);updateClock();
 
 // ── ALL CLINICAL DATA ────────────────────────────────────────
 // Labels for series with all timepoints
-const L_CREAT=['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Nov-24c','Ene-25','Abr-25','Dic-25','Ago-25','May-26'];
-const L_HEMO =['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Ene-25','Abr-25','Dic-25','Ago-25','May-26'];
-const L_LIPID=['Nov-24','Ene-25','Abr-25','Dic-25','Ago-25','May-26'];
-const L_LEUC =['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Ene-25','Abr-25','Dic-25','Ago-25','May-26'];
-const L_HEMAT=['Nov-24b','Nov-24c','Ene-25','Abr-25','Dic-25','Ago-25','May-26'];
+const L_CREAT=['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Nov-24c','Ene-25','Abr-25','Dic-25','Ago-25','May-26','Nov-26'];
+const L_HEMO =['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Ene-25','Abr-25','Dic-25','Ago-25','May-26','Nov-26'];
+const L_LIPID=['Nov-24','Ene-25','Abr-25','Dic-25','Ago-25','May-26','Nov-26'];
+const L_LEUC =['Jul-24(1)','Jul-24(2)','Nov-24','Nov-24b','Ene-25','Abr-25','Dic-25','Ago-25','May-26','Nov-26'];
+const L_HEMAT=['Nov-24b','Nov-24c','Ene-25','Abr-25','Dic-25','Ago-25','May-26','Nov-26'];
 
-const D_CREAT=[2.04,2.23,1.60,1.78,null,1.24,1.15,1.34,1.27,1.24];
+const D_CREAT=[2.04,2.23,1.60,1.78,null,1.24,1.15,1.34,1.27,1.24,1.39];
 // Nov-24b (26/11): 1.78, Nov-24c: not available for that date, using 1.60 for 06/11
-const D_HGB=[11.9,11.9,10.9,11.5,11.7,13.5,14.6,14.4,15.6];
-const D_HCT=[34.4,34.8,32.7,33.9,36.3,40.4,43.5,42.9,45.8];
-const D_COLTOTAL=[218,null,169,144,177,150];
-const D_LDL=[null,154,92,87,108,86];
-const D_TGC=[134,150,116,144,111,166];
-const D_HDL=[41,50,62,38,50,38];
-const D_LEUC=[11.05,10.0,12.02,10.36,10.71,10.02,7.77,8.0,9.32];
-const D_HEMAT=[20,20,25,20,20,20,8];
+const D_HGB=[11.9,11.9,10.9,11.5,11.7,13.5,14.6,14.4,15.6,15.8];
+const D_HCT=[34.4,34.8,32.7,33.9,36.3,40.4,43.5,42.9,45.8,44.5];
+const D_COLTOTAL=[218,null,169,144,177,150,167];
+const D_LDL=[null,154,92,87,108,86,102];
+const D_TGC=[134,150,116,144,111,166,209];
+const D_HDL=[41,50,62,38,50,38,42];
+const D_LEUC=[11.05,10.0,12.02,10.36,10.71,10.02,7.77,8.0,9.32,8.56];
+const D_HEMAT=[20,20,25,20,20,20,8,9];
 
-// KPIs — current state 20/05/2026
+// KPIs — current state 12/11/2026
 const kpis=[
-  {label:'Creatinina sérica',val:'1,24',unit:'mg/dl',ref:'ref <1,20 · leve ↑',badge:'LEVE ELEVACIÓN',cls:'warn'},
-  {label:'TFG estimada (CKD-EPI)',val:'~60',unit:'ml/min/1.73m²',ref:'Estadio CKD G2',badge:'ESTABLE',cls:'warn'},
-  {label:'Hemoglobina',val:'15,6',unit:'g/dl',ref:'ref 13,5–17,5 ✓',badge:'NORMALIZADA',cls:'ok'},
-  {label:'Hematuria (orina)',val:'8',unit:'hematíes/campo',ref:'Mejor valor histórico',badge:'MEJORA ↓60%',cls:'warn'},
-  {label:'Triglicéridos',val:'166',unit:'mg/dl',ref:'ref <150 · leve ↑',badge:'LEVE ELEVACIÓN',cls:'warn'},
-  {label:'Colesterol total',val:'150',unit:'mg/dl',ref:'ref <200',badge:'NORMAL',cls:'ok'},
-  {label:'LDL colesterol',val:'86',unit:'mg/dl',ref:'ref <140 ✓',badge:'EXCELENTE',cls:'ok'},
-  {label:'Función hepática (GPT)',val:'18',unit:'U/L',ref:'ref <41 — resuelto',badge:'NORMAL ✓',cls:'ok'},
-  {label:'Proteínas totales',val:'7,70',unit:'g/dl',ref:'ref 6,60–8,70',badge:'NORMAL',cls:'ok'},
+  {label:'Creatinina sérica',val:'1,39',unit:'mg/dl',ref:'ref <1,20 · elevada ↑',badge:'ELEVACIÓN ↑',cls:'alert'},
+  {label:'TFG estimada (CKD-EPI)',val:'~55',unit:'ml/min/1.73m²',ref:'Estadio CKD G3a — atención',badge:'MONITOREAR',cls:'alert'},
+  {label:'Hemoglobina',val:'15,8',unit:'g/dl',ref:'ref 13,5–17,5 ✓ — mejor valor',badge:'RÉCORD ↑',cls:'ok'},
+  {label:'Hematuria (orina)',val:'9',unit:'hematíes/campo',ref:'Estable — Hgb++ en orina',badge:'ACTIVA / ESTABLE',cls:'warn'},
+  {label:'Triglicéridos',val:'209',unit:'mg/dl',ref:'ref <150 · ELEVADO ↑↑',badge:'ELEVADO — ALERTA',cls:'alert'},
+  {label:'Colesterol total',val:'167',unit:'mg/dl',ref:'ref <200 ✓',badge:'NORMAL',cls:'ok'},
+  {label:'LDL colesterol',val:'102',unit:'mg/dl',ref:'ref <140 ✓',badge:'NORMAL',cls:'ok'},
+  {label:'Función hepática (GPT)',val:'18',unit:'U/L',ref:'ref <41 — normal',badge:'NORMAL ✓',cls:'ok'},
+  {label:'HDL colesterol',val:'42',unit:'mg/dl',ref:'ref >40 · límite inferior',badge:'LÍMITE',cls:'warn'},
+  {label:'Cociente Prot/Creat',val:'0,038',unit:'mg/mg (orina aislada)',ref:'ref <0,2 — excelente',badge:'SIN PROTEINURIA',cls:'ok'},
 ];
 
-// Delta comparison Ago-25 vs May-26
+// Delta comparison May-26 vs Nov-26
 const deltas=[
-  {name:'Creatinina sérica',prev:'1,27',curr:'1,24',delta:'−0,03',cls:'td-ok',estado:'Leve mejoría'},
-  {name:'Hemoglobina',prev:'14,4',curr:'15,6',delta:'+1,2 ↑',cls:'td-ok',estado:'Mejoría — rango normal alto'},
-  {name:'Hematocrito',prev:'42,9%',curr:'45,8%',delta:'+2,9% ↑',cls:'td-ok',estado:'Normal — mejor valor'},
-  {name:'Hematíes/campo (orina)',prev:'20',curr:'8',delta:'−12 ↓60%',cls:'td-ok',estado:'MEJORA SIGNIFICATIVA'},
-  {name:'Colesterol total',prev:'177',curr:'150',delta:'−27 ↓',cls:'td-ok',estado:'Excelente bajo rosuvastatina'},
-  {name:'LDL colesterol',prev:'108',curr:'86',delta:'−22 ↓',cls:'td-ok',estado:'Mejor valor histórico'},
-  {name:'Triglicéridos',prev:'111',curr:'166',delta:'+55 ↑',cls:'td-warn',estado:'Leve elevación — monitorear'},
-  {name:'HDL colesterol',prev:'50',curr:'38',delta:'−12 ↓',cls:'td-warn',estado:'Levemente bajo — atención'},
-  {name:'GPT (ALT)',prev:'42',curr:'18',delta:'−24 ↓',cls:'td-ok',estado:'Resuelto — era límite ago-25'},
-  {name:'Leucocitos',prev:'8,00',curr:'9,32',delta:'+1,32',cls:'td-ok',estado:'Normal — leve aumento dentro del rango'},
-  {name:'Glucosa',prev:'93',curr:'92',delta:'−1',cls:'td-ok',estado:'Estable y normal'},
-  {name:'Fosfatasa alcalina',prev:'N/D',curr:'82 U/L',delta:'—',cls:'td-new',estado:'Nuevo en serie — normal'},
-  {name:'Albúmina',prev:'N/D',curr:'4,20 g/dl',delta:'—',cls:'td-new',estado:'Nuevo en serie — normal'},
+  {name:'Creatinina sérica',prev:'1,24',curr:'1,39',delta:'+0,15 ↑',cls:'td-alert',estado:'SUBIÓ — máximo desde dic-2025'},
+  {name:'Hemoglobina',prev:'15,6',curr:'15,8',delta:'+0,2 ↑',cls:'td-ok',estado:'Mejor valor histórico absoluto'},
+  {name:'Hematocrito',prev:'45,8%',curr:'44,5%',delta:'−1,3% ↓',cls:'td-ok',estado:'Normal — estable'},
+  {name:'Hematíes/campo (orina)',prev:'8',curr:'9',delta:'+1 →',cls:'td-warn',estado:'Estable — sigue activa la hematuria'},
+  {name:'Colesterol total',prev:'150',curr:'167',delta:'+17 ↑',cls:'td-ok',estado:'Normal — leve aumento'},
+  {name:'LDL colesterol',prev:'86',curr:'102',delta:'+16 ↑',cls:'td-ok',estado:'Normal — subió pero dentro del rango'},
+  {name:'Triglicéridos',prev:'166',curr:'209',delta:'+43 ↑↑',cls:'td-alert',estado:'ELEVADO — supera ref 150 claramente'},
+  {name:'HDL colesterol',prev:'38',curr:'42',delta:'+4 ↑',cls:'td-ok',estado:'Mejoría — ahora sobre el límite'},
+  {name:'GPT (ALT)',prev:'18',curr:'18',delta:'0',cls:'td-ok',estado:'Sin cambio — normal'},
+  {name:'Leucocitos',prev:'9,32',curr:'8,56',delta:'−0,76 ↓',cls:'td-ok',estado:'Normal — levemente mejor'},
+  {name:'Glucosa',prev:'92',curr:'92',delta:'0',cls:'td-ok',estado:'Estable y normal'},
+  {name:'Potasio (K)',prev:'3,63',curr:'3,58',delta:'−0,05',cls:'td-warn',estado:'Límite inferior — vigilar con valsartán'},
+  {name:'Cociente Prot/Creat',prev:'N/D',curr:'0,038',delta:'—',cls:'td-new',estado:'Nuevo — EXCELENTE: sin proteinuria'},
 ];
 
 const insights=[
-  {title:'Hematuria — MEJORA MÁS IMPORTANTE',dot:'#00ff41',text:'Los hematíes en orina bajaron de 20/campo (constante desde jul-2024) a 8/campo en may-2026. Una reducción del 60% en este marcador es la señal positiva más relevante del último análisis. La nefritis sigue activa pero con menor actividad glomerular.'},
-  {title:'Creatinina sérica — Estabilidad',dot:'#ffb000',text:'1,24 mg/dl (may-2026) vs 1,27 (ago-2025). Prácticamente idéntica, lo que indica estabilidad de la función renal. Permanece levemente por encima del límite normal (1,20) pero sin tendencia a empeorar en casi 2 años de seguimiento.'},
-  {title:'Hemoglobina — Recuperación completa',dot:'#00ff41',text:'15,6 g/dl es el mejor valor registrado. Partió de 10,9 g/dl (nov-2024, en plena crisis). La anemia se resolvió completamente. El hematocrito de 45,8% también es el más alto de toda la serie, confirmando recuperación hematológica total.'},
-  {title:'Función hepática — Resuelto',dot:'#00ff41',text:'El GPT que preocupaba en ago-2025 (42 U/L, límite) bajó a 18 U/L. GOT y GGT también perfectamente normales. La rosuvastatina no está generando impacto hepático detectable. Dato muy tranquilizador.'},
-  {title:'Lípidos — LDL excelente / TGC atención',dot:'#ffb000',text:'LDL en 86 mg/dl: mejor valor histórico, muy buena respuesta a rosuvastatina. Colesterol total en 150, también excelente. Sin embargo los triglicéridos subieron a 166 mg/dl (ref <150), leve pero requiere monitoreo. HDL cayó a 38 mg/dl (mínimo aceptable). Evaluar con el médico.'},
-  {title:'Proteínas y albúmina — Normal',dot:'#00ff41',text:'Proteínas totales 7,70 g/dl y albúmina 4,20 g/dl, ambas en rango normal. Esto es importante: no hay pérdida proteica renal significativa, lo que indica que el glómerulo está filtrando relativamente bien a pesar de la hematuria persistente.'},
-  {title:'Glucosa y electrolitos — Estables',dot:'#00ff41',text:'Glucosa 92 mg/dl (normal). Ionograma: sodio 141, potasio 3,63, cloro 104 — todos normales. El potasio está en el límite inferior del rango (3,5) con valsartán activo. Seguir de cerca en próximo control.'},
-  {title:'Leucocitos — Dentro del rango',dot:'#00ff41',text:'9,32 k/ul: dentro del rango normal (hasta 10,0). Leve incremento respecto a ago-2025 (8,00) pero perfectamente normal. Fórmula leucocitaria equilibrada: neutrófilos 67%, linfocitos 22%, sin signos de proceso infeccioso activo.'},
+  {title:'Creatinina — SUBE A 1,39: principal hallazgo',dot:'#ff3333',text:'La creatinina subió de 1,24 (may-2026) a 1,39 mg/dl, el valor más alto desde dic-2025 (1,34). Es el hallazgo más preocupante de este análisis. Si bien puede ser una variación puntual (fluctuaciones son frecuentes en GNIgA), la tendencia se revierte. La TFG estimada cae ~55 ml/min (estadio G3a). Comunicar a Dr. CC para decidir si se intensifica el seguimiento.'},
+  {title:'Triglicéridos 209 — ELEVADO: requiere acción',dot:'#ff3333',text:'Los triglicéridos escalaron de 166 (may-2026) a 209 mg/dl, superando claramente el límite de 150. Es el segundo hallazgo que requiere atención. Puede estar vinculado a dieta, dapagliflozina o reducción de actividad física. El LDL también subió a 102 (sigue normal) y el HDL mejoró a 42. Evaluar con el médico: ajuste de dieta, actividad física o modificación de rosuvastatina.'},
+  {title:'Hemoglobina 15,8 — RÉCORD histórico',dot:'#00ff41',text:'15,8 g/dl es el mejor valor de toda la serie (anterior récord: 15,6 en may-2026). La recuperación hematológica es total y sostenida: de 10,9 g/dl (crisis nov-2024) a este máximo en 24 meses. El hematocrito de 44,5% también es normal. Dato muy positivo que confirma la estabilización hematológica completa.'},
+  {title:'Cociente Proteína/Creatinina — EXCELENTE',dot:'#00ff41',text:'Cociente prot/creat en orina aislada: 0,038 mg/mg (normal <0,2). Esto es un dato extraordinariamente tranquilizador: prácticamente no hay proteinuria a pesar de la creatinina elevada y la hematuria activa. Indica que el daño glomerular no está generando pérdida proteica significativa. Los nefroprotectores (dapagliflozina + valsartán) están funcionando.'},
+  {title:'Hematuria — Estable en 9/campo',dot:'#ffb000',text:'Los hematíes en orina se mantienen en 9/campo (vs 8 en may-2026). Prácticamente sin cambio. La hematuria sigue activa (Hemoglobina++ en tira reactiva) pero no empeora. Para contexto: partió de 20-25/campo en 2024. La reducción del 55% desde entonces es significativa aunque el marcador no ha desaparecido, lo que es esperable en GNIgA.'},
+  {title:'Función hepática — Normal y estable',dot:'#00ff41',text:'GOT 22, GPT 18, GGT 22 U/L: todos perfectamente normales. La rosuvastatina sigue sin impacto hepático detectable. Dato tranquilizador dado el tiempo de uso del fármaco. Bilirrubina total 0,87 (normal).'},
+  {title:'Electrolitos — Potasio 3,58 límite inferior',dot:'#ffb000',text:'Sodio 141, Cloro 105 — normales. Potasio 3,58 mEq/L: en el límite inferior del rango (3,5-5,0). Con valsartán activo se espera esta tendencia. Ácido úrico 5,5 (normal). Calcio 9,3 (normal). No es urgente pero amerita control en próximo análisis, especialmente si aparecen calambres.'},
+  {title:'Leucocitos y glucosa — Sin novedad',dot:'#00ff41',text:'Leucocitos 8,56 k/ul: normal y levemente menor que may-2026 (9,32). Fórmula equilibrada: neutrófilos 64%, linfocitos 24%, monocitos 8%, eosinófilos 4% — sin signos de infección ni proceso inflamatorio activo. Glucosa 92 mg/dl: normal. Eritrocitos 5,11 M/ul: normal.'},
 ];
 
 const meds=[
-  {name:'Dapagliflozina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'iSGLT2. Reduce presión intraglomerular y protege la función renal. Disminuye proteinuria. La glucosuria +++ en orina de may-2026 es efecto esperado del fármaco, no una patología.',sus:false},
-  {name:'Valsartán + HCTZ (Sarval D 160/12.5)',dose:'1 TOMA DIARIA // ACTIVO',action:'ARAII + diurético. Controla presión arterial y reduce proteinuria. Nefroprotector clave. Monitorear potasio (3,63 en may-2026 — límite inferior del rango).',sus:false},
-  {name:'Rosuvastatina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'Estatina. LDL en 86 mg/dl: excelente respuesta. GPT normalizado (18 U/L). Sin evidencia de hepatotoxicidad. Triglicéridos levemente elevados (166) — evaluar con médico.',sus:false},
+  {name:'Dapagliflozina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'iSGLT2. Reduce presión intraglomerular y protege la función renal. Cociente prot/creat 0,038 — confirma ausencia de proteinuria. Glucosuria +++ en nov-2026 es efecto esperado del fármaco.',sus:false},
+  {name:'Valsartán + HCTZ (Sarval D 160/12.5)',dose:'1 TOMA DIARIA // ACTIVO',action:'ARAII + diurético. Nefroprotector clave. Monitorear potasio (3,58 en nov-2026 — límite inferior). La creatinina sube a 1,39 — comunicar a médico para evaluar ajuste.',sus:false},
+  {name:'Rosuvastatina 10 mg',dose:'1 TOMA DIARIA // ACTIVA',action:'Estatina. GPT 18 U/L — sin hepatotoxicidad. LDL 102 (sube pero normal). Triglicéridos 209 (ELEVADOS) — evaluar con médico si se ajusta dosis o estrategia.',sus:false},
   {name:'Budesonida (corticoide)',dose:'9 MESES // SUSPENDIDA',action:'Inmunosupresor intestinal que redujo IgA galactosilada deficiente. Suspendida. La estabilidad de creatinina post-suspensión es positiva: sugiere que el tratamiento actual es suficiente para mantener la función renal.',sus:true},
 ];
 
@@ -455,7 +456,7 @@ function printReport(){
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reporte Clínico OAP — May-2026</title>
+<title>Reporte Clínico OAP — Nov-2026</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Courier New',Courier,monospace;font-size:10pt;color:#111;background:#fff;padding:24px}
@@ -477,20 +478,20 @@ function printReport(){
 <div class="meta">
   <strong>Paciente:</strong> OAP &nbsp;|&nbsp; <strong>Médico:</strong> Dr. CC &nbsp;|&nbsp;
   <strong>Diagnóstico:</strong> Glomerulonefritis por IgA (Enfermedad de Berger)<br>
-  <strong>Fecha del análisis:</strong> 20/05/2026 &nbsp;|&nbsp;
+  <strong>Fecha del análisis:</strong> 12/11/2026 &nbsp;|&nbsp;
   <strong>Generado:</strong> ${now} &nbsp;|&nbsp;
-  <strong>Sistema:</strong> NEPHRO_MONITOR v2.2
+  <strong>Sistema:</strong> NEPHRO_MONITOR v2.3
 </div>
 
-<h2>1. INDICADORES PRINCIPALES — ESTADO AL 20/05/2026</h2>
+<h2>1. INDICADORES PRINCIPALES — ESTADO AL 12/11/2026</h2>
 <table>
   <thead><tr><th>MARCADOR</th><th>VALOR</th><th>UNIDAD</th><th>REFERENCIA</th><th>ESTADO</th></tr></thead>
   <tbody>${kpiRows}</tbody>
 </table>
 
-<h2>2. COMPARATIVO AGO-2025 vs MAY-2026</h2>
+<h2>2. COMPARATIVO MAY-2026 vs NOV-2026</h2>
 <table>
-  <thead><tr><th>MARCADOR</th><th>AGO-2025</th><th>MAY-2026</th><th>VARIACIÓN</th><th>INTERPRETACIÓN</th></tr></thead>
+  <thead><tr><th>MARCADOR</th><th>MAY-2026</th><th>NOV-2026</th><th>VARIACIÓN</th><th>INTERPRETACIÓN</th></tr></thead>
   <tbody>${deltaRows}</tbody>
 </table>
 
@@ -499,7 +500,7 @@ ${insightCards}
 
 <div class="footer">
   ⚠ Este reporte es una herramienta de seguimiento orientativa. No reemplaza la evaluación médica profesional.
-  Todos los valores e interpretaciones deben discutirse con el médico tratante. // NEPHRO_MONITOR v2.2
+  Todos los valores e interpretaciones deben discutirse con el médico tratante. // NEPHRO_MONITOR v2.3
 </div>
 </body>
 </html>`;
@@ -543,7 +544,7 @@ function renderCharts(){
     {label:'Creatinina',data:D_CREAT,borderColor:'#ffb000',backgroundColor:'rgba(255,176,0,0.07)',tension:.4,pointRadius:5,pointBackgroundColor:D_CREAT.map((_,i)=>i===D_CREAT.length-1?'#00ffff':'#ffb000'),pointBorderColor:'#000',pointBorderWidth:1.5,borderWidth:2,spanGaps:true},
     {label:'Ref 1.20',data:Array(L_CREAT.length).fill(1.20),borderColor:'rgba(255,51,51,0.5)',borderDash:[6,4],pointRadius:0,borderWidth:1}
   ]},options:{...baseOpts(.8,2.5,v=>v.toFixed(2)),animation:{duration:2600,easing:'easeInOutQuart'}}});
-  makeLegend('leg1',[{color:'#ffb000',label:'Creatinina sérica (mg/dl)'},{color:'rgba(255,51,51,0.7)',label:'Límite normal (1,20)'},{color:'#00ffff',label:'Último análisis (May-26)'}]);
+  makeLegend('leg1',[{color:'#ffb000',label:'Creatinina sérica (mg/dl)'},{color:'rgba(255,51,51,0.7)',label:'Límite normal (1,20)'},{color:'#00ffff',label:'Último análisis (Nov-26)'}]);
 
   // CH2 Hemograma
   new Chart(document.getElementById('c2'),{type:'line',data:{labels:L_HEMO,datasets:[
